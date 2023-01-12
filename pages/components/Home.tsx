@@ -10,9 +10,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
+  debounce,
+  useMediaQuery,
 } from '@mui/material';
 import { useQuery } from 'react-query';
 import { join } from 'path';
+import { log } from 'console';
 
 const useFetchData = () => useQuery(
   'tableData1',
@@ -21,24 +25,6 @@ const useFetchData = () => useQuery(
     return await res.json();
   },
 );
-
-interface FactType {
-  dataIndex: number,
-  id: string,
-  verified: boolean,
-  text: string,
-  votes: number,
-};
-
-interface RawData {
-  _id: string,
-  status: { verified: boolean },
-  text: string,
-};
-
-interface StateType {
-  [key:string]: FactType,
-};
 
 const getOrderedItemsFromVotes = (data: StateType, orderType: string = 'highest'): string => {
   const itemsArray = Object.values(data)
@@ -71,9 +57,29 @@ const getInitialStateFromData = (data: RawData[]) =>
     }
   }), {});
 
+interface FactType {
+  dataIndex: number,
+  id: string,
+  verified: boolean,
+  text: string,
+  votes: number,
+};
+
+interface RawData {
+  _id: string,
+  status: { verified: boolean },
+  text: string,
+};
+
+interface StateType {
+  [key:string]: FactType,
+};
+  
 const Home = () => {
   const [renderData, setRenderData] = useState<StateType>({});
+  const [filterString, setFilterString] = useState('');
   const { isLoading, data } = useFetchData();
+  const isXXSM = useMediaQuery('(max-width:400px)');
 
   useEffect(() => {
     if (!isLoading) {
@@ -97,6 +103,15 @@ const Home = () => {
 
   const resetVotes = () => setRenderData(getInitialStateFromData(data));
 
+  const filterData = ({ target: { value }}: { target: { value: string } }) => {
+    setFilterString(value.toLowerCase());
+  };
+
+  const debouncedInputChange = debounce(filterData, 300);
+
+  const filteredData = Object.values(renderData)
+    .filter((fact: FactType) => fact.text.toLowerCase().includes(filterString));
+  
   return (
     <Container>
       <h1>Jakub's Cat Facts UI</h1>
@@ -104,24 +119,30 @@ const Home = () => {
         {isLoading && <h3>Loading...</h3>}
         {!isLoading && (
           <>
-            <div>
-              <Grid container>
-                <Grid item xs={2}>
-                  <h3>Leaderboard</h3>
-                </Grid>
-                <Grid item xs={2}>
-                  <Button onClick={resetVotes} variant="outlined">Reset Votes</Button>
-                </Grid>
+            <Grid container alignItems="center">
+              <Grid item xs={isXXSM ? 6 : 4} sm={3} md={2}>
+                <h3>Leaderboard</h3>
               </Grid>
-              <Grid container>
-                <Grid item xs={2}>Highest votes</Grid>
-                <Grid item xs={10}>{getOrderedItemsFromVotes(renderData, 'highest')}</Grid>
+              <Grid item xs={6}>
+                <Button onClick={resetVotes} size="small" variant="outlined">
+                  Reset Votes
+                </Button>
               </Grid>
-              <Grid container>
-                <Grid item xs={2}>Lowest votes</Grid>
-                <Grid item xs={10}>{getOrderedItemsFromVotes(renderData, 'lowest')}</Grid>
-              </Grid>
-            </div>
+            </Grid>
+            <Grid container>
+              <Grid item xs={isXXSM ? 6 : 4} sm={3} md={2}>Highest votes:</Grid>
+              <Grid item xs={6}>{getOrderedItemsFromVotes(renderData, 'highest')}</Grid>
+            </Grid>
+            <Grid container marginBottom="24px">
+              <Grid item xs={isXXSM ? 6 : 4} sm={3} md={2}>Lowest votes:</Grid>
+              <Grid item xs={6}>{getOrderedItemsFromVotes(renderData, 'lowest')}</Grid>
+            </Grid>
+            <TextField
+              onChange={debouncedInputChange}
+              label="filter"
+              placeholder="Filter table results"
+              variant="standard"
+            />
             <TableContainer>
               <Table>
                 <TableHead>
@@ -135,10 +156,12 @@ const Home = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Object.values(renderData)?.map((row: FactType, index: number) => (
+                  {filteredData?.map((row: FactType, index: number) => (
                     <TableRow key={row.id}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell sx={{ maxWidth: '50ch'}}>{row.text}</TableCell>
+                      <TableCell sx={{ maxWidth: '50ch', minWidth: '25ch' }}>
+                        {row.text}
+                      </TableCell>
                       <TableCell align="right">{row.votes}</TableCell>
                       <TableCell align="right">
                         <ButtonGroup variant="outlined">

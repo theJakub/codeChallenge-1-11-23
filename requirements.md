@@ -18,7 +18,7 @@ Using NextJS, CRA, or an equivalent React based framework, create a react applic
 
 - Is mobile/web responsive
 
-- Add a debounced text input above your table/list which filters the items in your table or list
+- /X/ Add a debounced text input above your table/list which filters the items in your table or list
 
 - Create a generic button component which, via its props, has the following configurations/use
 
