@@ -6,15 +6,15 @@ Using NextJS, CRA, or an equivalent React based framework, create a react applic
 
  
 
-- Fetches data from an external source https://github.com/public-apis/public-apis
+- /X/ Fetches data from an external source https://github.com/public-apis/public-apis
 
-  - Feel free to use any state management you want. If you want to flex your muscles with a specific library (redux/zustand), then go for it
+  - /X/ Feel free to use any state management you want. If you want to flex your muscles with a specific library (redux/zustand), then go for it
 
-- Renders the data to a list or table view (styling entirely up to you!) with buttons allowing users upvote or downvote each item (votes do not need to persist across browser refreshes)
+- /X/ Renders the data to a list or table view (styling entirely up to you!) with buttons allowing users upvote or downvote each item (votes do not need to persist across browser refreshes)
 
-- Above the item list/table, display a leaderboard of the most upvoted and downvoted items
+- /X/ Above the item list/table, display a leaderboard of the most upvoted and downvoted items
 
-- Add a button to reset all votes somewhere
+- /X/ Add a button to reset all votes somewhere
 
 - Is mobile/web responsive
 

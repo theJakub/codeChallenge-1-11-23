@@ -40,37 +40,36 @@ interface StateType {
   [key:string]: FactType,
 };
 
-const getHighestVotedItems = (data: StateType): string => {
-  const itemsArray = Object.values(data).reduce((acc: string[], fact: FactType, index: number): string[] => {
-    if (index === 0) {
-      acc.push(fact.id);
+const getOrderedItemsFromVotes = (data: StateType, orderType: string = 'highest'): string => {
+  const itemsArray = Object.values(data)
+    .reduce((acc: string[], fact: FactType, index: number): string[] => {
+      if (index === 0) {
+        acc.push(fact.id);
+        return acc;
+      } else if (data[acc[0]].votes === fact.votes) {
+        acc.push(fact.id);
+        return acc;
+      } else if (orderType === 'lowest' && data[acc[0]].votes > fact.votes) {
+        return [fact.id];
+      } else if (orderType === 'highest' && data[acc[0]].votes < fact.votes) {
+        return [fact.id];
+      }
       return acc;
-    } else if (data[acc[0]].votes < fact.votes) {
-      return [fact.id];
-    } else if (data[acc[0]].votes === fact.votes) {
-      acc.push(fact.id);
-      return acc;
-    }
-    return acc;
-  }, []);
+    }, []);
   return itemsArray.map(id => data[id].dataIndex + 1).join(', ');
 };
 
-const getLowestVotedItems = (data: StateType): string => {
-  const itemsArray = Object.values(data).reduce((acc: string[], fact: FactType, index: number): string[] => {
-    if (index === 0) {
-      acc.push(fact.id);
-      return acc;
-    } else if (data[acc[0]].votes > fact.votes) {
-      return [fact.id];
-    } else if (data[acc[0]].votes === fact.votes) {
-      acc.push(fact.id);
-      return acc;
+const getInitialStateFromData = (data: RawData[]) =>
+  data.reduce((acc: StateType, fact: RawData, index: number) => ({
+    ...acc,
+    [fact._id]: {
+      dataIndex: index,
+      id: fact._id,
+      verified: fact.status.verified,
+      text: fact.text,
+      votes: 0,
     }
-    return acc;
-  }, []);
-  return itemsArray.map(id => data[id].dataIndex + 1).join(', ');
-};
+  }), {});
 
 const Home = () => {
   const [renderData, setRenderData] = useState<StateType>({});
@@ -78,32 +77,25 @@ const Home = () => {
 
   useEffect(() => {
     if (!isLoading) {
-      setRenderData(data.reduce((acc: StateType, fact: RawData, index: number) => ({
-        ...acc,
-        [fact._id]: {
-          dataIndex: index,
-          id: fact._id,
-          verified: fact.status.verified,
-          text: fact.text,
-          votes: 0,
-        }
-      }), {}));
+      setRenderData(getInitialStateFromData(data));
     }
   }, [isLoading, data]);
 
-  const handleUpvote = (id: string ) => {
+  const handleUpvote = (id: string) => {
     setRenderData((prevState) => ({
       ...prevState,
       [id]: { ...prevState[id], votes: prevState[id].votes + 1 },
     }));
   };
 
-  const handleDownvote = (id: string ) => {
+  const handleDownvote = (id: string) => {
     setRenderData((prevState) => ({
       ...prevState,
       [id]: { ...prevState[id], votes: prevState[id].votes - 1 },
     }));
   };
+
+  const resetVotes = () => setRenderData(getInitialStateFromData(data));
 
   return (
     <Container>
@@ -113,14 +105,21 @@ const Home = () => {
         {!isLoading && (
           <>
             <div>
-              <h3>Leaderboard</h3>
-              <Grid>
-                <Grid item xs={2}>Highest votes</Grid>
-                <Grid item xs={10}>{getHighestVotedItems(renderData)}</Grid>
+              <Grid container>
+                <Grid item xs={2}>
+                  <h3>Leaderboard</h3>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button onClick={resetVotes} variant="outlined">Reset Votes</Button>
+                </Grid>
               </Grid>
-              <Grid>
+              <Grid container>
+                <Grid item xs={2}>Highest votes</Grid>
+                <Grid item xs={10}>{getOrderedItemsFromVotes(renderData, 'highest')}</Grid>
+              </Grid>
+              <Grid container>
                 <Grid item xs={2}>Lowest votes</Grid>
-                <Grid item xs={10}>{getLowestVotedItems(renderData)}</Grid>
+                <Grid item xs={10}>{getOrderedItemsFromVotes(renderData, 'lowest')}</Grid>
               </Grid>
             </div>
             <TableContainer>
