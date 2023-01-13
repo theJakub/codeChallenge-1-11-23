@@ -1,22 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from 'react-query';
 import {
-  Button,
-  ButtonGroup,
+  Box,
   Container,
   Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  Paper,
   TextField,
+  Typography,
   debounce,
   useMediaQuery,
 } from '@mui/material';
-import { useQuery } from 'react-query';
-import { join } from 'path';
-import { log } from 'console';
+import Table from './Table';
+import FactCards from './FactCards';
+import Button from './Button';
 
 const useFetchData = () => useQuery(
   'tableData1',
@@ -57,7 +53,7 @@ const getInitialStateFromData = (data: RawData[]) =>
     }
   }), {});
 
-interface FactType {
+export interface FactType {
   dataIndex: number,
   id: string,
   verified: boolean,
@@ -79,7 +75,7 @@ const Home = () => {
   const [renderData, setRenderData] = useState<StateType>({});
   const [filterString, setFilterString] = useState('');
   const { isLoading, data } = useFetchData();
-  const isXXSM = useMediaQuery('(max-width:400px)');
+  const isXXSM = useMediaQuery('(max-width:420px)');
 
   useEffect(() => {
     if (!isLoading) {
@@ -95,6 +91,7 @@ const Home = () => {
   };
 
   const handleDownvote = (id: string) => {
+    console.log('downvote');
     setRenderData((prevState) => ({
       ...prevState,
       [id]: { ...prevState[id], votes: prevState[id].votes - 1 },
@@ -114,70 +111,74 @@ const Home = () => {
   
   return (
     <Container>
-      <h1>Jakub's Cat Facts UI</h1>
+      <Typography variant='h4'>Jakub's Cat Fact Table</Typography>
       <Grid>
         {isLoading && <h3>Loading...</h3>}
         {!isLoading && (
           <>
-            <Grid container alignItems="center">
-              <Grid item xs={isXXSM ? 6 : 4} sm={3} md={2}>
-                <h3>Leaderboard</h3>
+            <Paper elevation={6}>
+              <Box padding='16px'>
+                <Grid container alignItems="center">
+                  <Grid item xs={isXXSM ? 6 : 4} sm={3} md={2}>
+                    <Typography variant='h6'>Leaderboard</Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Button
+                      onClick={resetVotes}
+                      isLoading={isLoading}
+                      isDisabled={true}
+                      variant="link"
+                    >
+                      Reset Votes
+                    </Button>
+                  </Grid>
+                </Grid>
+                <Grid container>
+                  <Grid item xs={isXXSM ? 6 : 4} sm={3} md={2}>Highest votes:</Grid>
+                  <Grid item xs={6}>{getOrderedItemsFromVotes(renderData, 'highest')}</Grid>
+                </Grid>
+                <Grid container>
+                  <Grid item xs={isXXSM ? 6 : 4} sm={3} md={2}>Lowest votes:</Grid>
+                  <Grid item xs={6}>{getOrderedItemsFromVotes(renderData, 'lowest')}</Grid>
+                </Grid>
+              </Box>
+            </Paper>
+            <Paper
+              elevation={6}
+              sx={{ width: '100%', backgroundColor: '#fefefe', margin: '16px 0' }}
+            >
+              <Grid container padding="16px">
+                <Grid item xs={6} md={4}>
+                  <TextField
+                    onChange={debouncedInputChange}
+                    label="filter"
+                    placeholder="Filter table results"
+                    sx={{ width: '100%' }}
+                    variant="standard"
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <Button onClick={resetVotes} size="small" variant="outlined">
-                  Reset Votes
-                </Button>
-              </Grid>
-            </Grid>
-            <Grid container>
-              <Grid item xs={isXXSM ? 6 : 4} sm={3} md={2}>Highest votes:</Grid>
-              <Grid item xs={6}>{getOrderedItemsFromVotes(renderData, 'highest')}</Grid>
-            </Grid>
-            <Grid container marginBottom="24px">
-              <Grid item xs={isXXSM ? 6 : 4} sm={3} md={2}>Lowest votes:</Grid>
-              <Grid item xs={6}>{getOrderedItemsFromVotes(renderData, 'lowest')}</Grid>
-            </Grid>
-            <TextField
-              onChange={debouncedInputChange}
-              label="filter"
-              placeholder="Filter table results"
-              variant="standard"
-            />
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell />
-                    <TableCell>Fact</TableCell>
-                    <TableCell align="right">Vote Count</TableCell>
-                    <TableCell align="center">
-                      Place Vote
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredData?.map((row: FactType, index: number) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell sx={{ maxWidth: '50ch', minWidth: '25ch' }}>
-                        {row.text}
-                      </TableCell>
-                      <TableCell align="right">{row.votes}</TableCell>
-                      <TableCell align="right">
-                        <ButtonGroup variant="outlined">
-                          <Button onClick={() => handleDownvote(row.id)}>
-                            Downvote
-                          </Button>
-                          <Button onClick={() => handleUpvote(row.id)}>
-                            Upvote
-                          </Button>
-                        </ButtonGroup>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            </Paper>
+            {!isXXSM && (
+              <Paper elevation={6}>
+                <Box padding="16px">
+                  <Table
+                    filteredData={filteredData}
+                    handleDownvote={handleDownvote}
+                    handleUpvote={handleUpvote}
+                  />
+                </Box>
+              </Paper>
+            )}
+            {isXXSM && (
+              <Paper elevation={6}>
+                <FactCards
+                  filteredData={filteredData}
+                  handleDownvote={handleDownvote}
+                  handleUpvote={handleUpvote}
+                />
+              </Paper>
+            )}
           </>
         )}
       </Grid>

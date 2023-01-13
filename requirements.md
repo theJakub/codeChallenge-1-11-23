@@ -16,18 +16,18 @@ Using NextJS, CRA, or an equivalent React based framework, create a react applic
 
 - /X/ Add a button to reset all votes somewhere
 
-- Is mobile/web responsive
+- /x/ Is mobile/web responsive
 
 - /X/ Add a debounced text input above your table/list which filters the items in your table or list
 
-- Create a generic button component which, via its props, has the following configurations/use
+- /X/ Create a generic button component which, via its props, has the following configurations/use
 
-  - Ensure to use this button throughout the application (no buttons from UI libraries)
+  - /X/ Ensure to use this button throughout the application (no buttons from UI libraries)
 
-  - Has at least 3 different types of buttons with different styling for each (cancel button, form submission button, link button, etc...)
+  - /X/ Has at least 3 different types of buttons with different styling for each (cancel button, form submission button, link button, etc...)
 
-  - Has a `isLoading` prop which renders the text "Loading" inside of the button or a loading spinner
+  - /X/ Has a `isLoading` prop which renders the text "Loading" inside of the button or a loading spinner
 
-  - Has a `isDisabled` prop which disables the button and adjusts the styling to indicate it is no longer clickable
+  - /X/ Has a `isDisabled` prop which disables the button and adjusts the styling to indicate it is no longer clickable
 
-  - Renders a native <button> tag
+  - /X/ Renders a native <button> tag
