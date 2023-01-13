@@ -109,6 +109,8 @@ const Home = () => {
   const filteredData = Object.values(renderData)
     .filter((fact: FactType) => fact.text.toLowerCase().includes(filterString));
   
+  const areAllVotesZero = Object.values(renderData).every(fact => fact.votes === 0);
+
   return (
     <Container>
       <Typography variant='h4'>Jakub's Cat Fact Table</Typography>
@@ -126,7 +128,7 @@ const Home = () => {
                     <Button
                       onClick={resetVotes}
                       isLoading={isLoading}
-                      isDisabled={true}
+                      isDisabled={areAllVotesZero}
                       variant="link"
                     >
                       Reset Votes
@@ -159,8 +161,8 @@ const Home = () => {
                 </Grid>
               </Grid>
             </Paper>
-            {!isXXSM && (
-              <Paper elevation={6}>
+            <Paper elevation={6}>
+              {!isXXSM && (
                 <Box padding="16px">
                   <Table
                     filteredData={filteredData}
@@ -168,17 +170,15 @@ const Home = () => {
                     handleUpvote={handleUpvote}
                   />
                 </Box>
-              </Paper>
-            )}
-            {isXXSM && (
-              <Paper elevation={6}>
+              )}
+              {isXXSM && (
                 <FactCards
                   filteredData={filteredData}
                   handleDownvote={handleDownvote}
                   handleUpvote={handleUpvote}
                 />
-              </Paper>
-            )}
+              )}
+            </Paper>
           </>
         )}
       </Grid>

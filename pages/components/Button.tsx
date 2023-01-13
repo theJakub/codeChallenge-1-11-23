@@ -37,6 +37,15 @@ const myButtonStyles: any = {
       backgroundColor: 'rgba(0, 0, 0, 0.1)',
     }
   },
+  disabled: {
+    border: 'rgba(0, 0, 0, 0.2)',
+    color: 'rgba(0, 0, 0, 0.2)',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    
+    ':hover': {
+      cursor: 'not-allowed',
+    },
+  },
 };
 
 const Button = styled.button({
@@ -49,6 +58,7 @@ const Button = styled.button({
   },
 },
 (props: ButtonPropType) => {
+  if (props.disabled) return 
   return myButtonStyles[props.variant!]
 });
 
